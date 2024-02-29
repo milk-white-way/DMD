@@ -51,19 +51,37 @@ topfreq = sortfreq(1:top);
 topnumb = numfreq(1:top);
 matfreq = [topfreq topnumb]
 
-
 sigmacumsum = cumsum(mysigma);
 
 sigmanormal = sigmacumsum./max(sigmacumsum);
 modeindex = 1:length(sigmanormal);
 modeindex = modeindex./max(modeindex);
 
+% Determine the number of data points to use for the fit
+numPoints = round(0.1 * length(sigmanormal));
+
+% Extract the first 10% of the data
+xData = modeindex(1:numPoints);
+yData = log(sigmanormal(1:numPoints));
+
+% Fit a linear curve to the data
+p = polyfit(xData, yData, 1);
+
+% Generate y-values based on the fit
+yFit = polyval(p, xData);
+
 figure('Renderer', 'painters')%, ...
 %    'Position', [100 100 1920 1080]);
 fig1 = gcf;
 ax1  = gca;
-loglog(modeindex, sigmanormal, '-', ...
+loglog(modeindex, sigmanormal, 'o', ...
     'LineWidth', 2);
+hold on;
+
+% Plot the fitted line
+plot(xData, yFit, 'r-', 'LineWidth', 2);
+slope = p(1);
+text(0.1, 0.1, ['Slope = ', num2str(slope)], 'Units', 'normalized');
 grid minor;
    
 figure('Renderer', 'painters')%, ...

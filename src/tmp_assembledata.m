@@ -3,11 +3,10 @@ function [matxdata, ...
     coordy, ....
     coordz, ...
     numstance, ...
-    pathdata] = tmp_assembledata(id)
+    pathdata] = tmp_assembledata(id, dir, tempspace)
 
-tempspace = 12000:20:16000;
-numstance = length(tempspace); fprintf('debug \t number of instances = %i\n',numstance);
-addzerofin = 10000;
+numstance = length(tempspace); fprintf('DEBUG \t number of instances = %i\n',numstance);
+addzerofin = 10000; % Set the maximum number of frames to read
 aneurysmid = id;
 
 matxdata = [];
@@ -17,7 +16,7 @@ for mytime = 1:numstance
 	if tempspace(mytime) < addzerofin
 		namedata = ['0' namedata];
 	end
-	pathdata = strcat('./datafile/', ...
+	pathdata = strcat(dir, '/database/', ...
         aneurysmid, 'an/', ...
         'aneu', aneurysmid, '_dmd_inputdata_', namedata, '.csv');
 	loaddata = readmatrix(pathdata);
