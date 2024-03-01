@@ -1,22 +1,48 @@
 clearvars; close all; clc;
-fprintf('\n DYNAMIC MODE DECOMPOSITION: START \n');
+fprintf('\nDYNAMIC MODE DECOMPOSITION: START \n');
 
-ENABLE_DMD = 1;
+ENABLE_DMD = 0;
 ENABLE_SPECTRUM = 0;
-ENABLE_PLOTTING = 0;
+ENABLE_PLOTTING = 1;
+
+%% Setting 1. Grid
+C0002 = [20, 95, 85, 160, 175, 240];
+C0014 = [30, 120, 73, 133, 128, 198];
+C0016 = [70, 170, 50, 190, 170, 270];
+C0036 = [64, 174, 64, 154, 174, 264];
+C0042 = [20, 130, 45, 135, 90, 220];
+C0075 = [30, 195, 75, 185, 110, 225];
+%{
+str_1 = [" low"; " high"; " low"; " high"; " low"; " high"];
+str_2 = [" x"; " x"; " y"; " y"; " z"; " z"];
+% Table of grid size for all cases at no coarsening scale
+extractSubset = zeros(1,6);
+for injectStep = 1:6
+    official_prompt = strcat('requesting subset''s ', str_1(injectStep), ' bound in ', str_2(injectStep), '-direction: ');
+    getm = input(official_prompt);
+    extractSubset(injectStep) = getm;
+end
+%}
+extractSubset = C0002;
+
+% resolution scale
+%rs = input('requesting resolution scale: '); rs = 1/rs;
+rsx = 1/2;
+rsy = 1/2;
+rsz = 1;
 
 working_dir = '.';
 str_frame = 12000;
 end_frame = 16000;
 tempo_res = 20;
+temporalspc = str_frame:tempo_res:end_frame;
+numstance = length(temporalspc);
+top = numstance-2; % minus two zero modes
+fprintf('DEBUG \t number of instances = %i\n', numstance);
 
 %% assembling data:
-%{
 prompt  = ('\n requesting aneurysm id: ');
 anid    = input(prompt, 's');
-%}
-anid = '75';
-
 fprintf('\n ======= aneurysm id: %s ======== \n', anid);
 
 tic
@@ -34,30 +60,8 @@ if ENABLE_DMD
     % 		coordy: y-coordinate of point data
     % 		coordz: z-coordinate of point data
 
-    temporalspc = str_frame:tempo_res:end_frame;
-
-    [velmat, coordx, coordy, coordz, numstance, pathname] = tmp_assembledata(anid, working_dir, temporalspc);
+    [velmat, coordx, coordy, coordz, numstance, pathname] = tmp_assembledata(anid, working_dir, temporalspc, numstance);
     fprintf('\n ======== assenbling data: complete ======== \n');
-
-    %% Setting 1. Grid
-    %{
-    str_1 = [" low"; " high"; " low"; " high"; " low"; " high"];
-    str_2 = [" x"; " x"; " y"; " y"; " z"; " z"];
-    % Table of grid size for all cases at no coarsening scale
-    extractSubset = zeros(1,6);
-    for injectStep = 1:6
-        official_prompt = strcat('requesting subset''s ', str_1(injectStep), ' bound in ', str_2(injectStep), '-direction: ');
-        getm = input(official_prompt);
-        extractSubset(injectStep) = getm;
-    end
-    %}
-    extractSubset = [30, 195, 75, 185, 110, 225];
-
-    % resolution scale
-    %rs = input('requesting resolution scale: '); rs = 1/rs;
-    rsx = 1/2;
-    rsy = 1/2;
-    rsz = 1;
 
     % size of the grid
     nx = floor( rsx*( extractSubset(2) - extractSubset(1) ) )+1;
@@ -163,7 +167,10 @@ else
 end
 
 if ENABLE_PLOTTING
-    tmp_energyspectrum
+    loadpath = strcat(working_dir, '/dmd_output/', num2str(anid), ...
+        '_spatialCoarse', num2str(1/rsx), '-', num2str(1/rsy), '-', num2str(1/rsz), ...
+        '_temporalFrame', num2str(numstance), '_SPECTRUM_result.mat');
+    tmp_energyspectrum(loadpath, numstance, top);
 else
     fprintf('\n ======== skipping plotting module ======== \n');
 end

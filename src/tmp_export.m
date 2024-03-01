@@ -15,7 +15,7 @@ for level = 1:rowsize
 		for iter = 1:nummodes
             filename = sprintf('%sdmd_mode_m%d_b%d_l%d.vtk', ...
                 anid, iter, bin, level);
-            visualflpath = strcat(working_dir, '/vtk_output');
+            visualflpath = strcat(working_dir, '/vtk_output/', anid, 'an');
             fullfilename = strcat(visualflpath, '/', filename);
             if deletesign == 1
                 delete(strcat(visualflpath, '/*'));

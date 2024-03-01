@@ -1,37 +1,35 @@
 function [matxdata, ...
     coordx, ...
     coordy, ....
-    coordz, ...
-    numstance, ...
-    pathdata] = tmp_assembledata(id, dir, tempspace)
+    coordz] = tmp_assembledata(id, dir, tempspace, numstance)
 
-numstance = length(tempspace); fprintf('DEBUG \t number of instances = %i\n',numstance);
-addzerofin = 10000; % Set the maximum number of frames to read
-aneurysmid = id;
+    addzerofin = 10000; % Set the maximum number of frames to read
+    aneurysmid = id;
 
-matxdata = [];
+    matxdata = [];
 
-for mytime = 1:numstance
-	namedata = num2str(tempspace(mytime)); 
-	if tempspace(mytime) < addzerofin
-		namedata = ['0' namedata];
-	end
-	pathdata = strcat(dir, '/database/', ...
-        aneurysmid, 'an/', ...
-        'aneu', aneurysmid, '_dmd_inputdata_', namedata, '.csv');
-	loaddata = readmatrix(pathdata);
+    for mytime = 1:numstance
+        namedata = num2str(tempspace(mytime)); 
+        if tempspace(mytime) < addzerofin
+            namedata = ['0' namedata];
+        end
+        pathdata = strcat(dir, '/database/', ...
+            aneurysmid, 'an/', ...
+            'aneu', aneurysmid, '_dmd_inputdata_', namedata, '.csv');
+        loaddata = readmatrix(pathdata);
 
-	matveloc = [];
-	matveloc = [loaddata(:,1)
-		loaddata(:,2)
-		loaddata(:,3)];
-	%matveloc = loaddata(:,5);
-	
-	matxdata = [matxdata matveloc];
+        matveloc = [];
+        matveloc = [loaddata(:,1)
+            loaddata(:,2)
+            loaddata(:,3)];
+        %matveloc = loaddata(:,5);
+        
+        matxdata = [matxdata matveloc];
 
-	if mytime==1
-		coordx = loaddata(:,4);
-		coordy = loaddata(:,5);
-		coordz = loaddata(:,6); 
-	end
+        if mytime==1
+            coordx = loaddata(:,4);
+            coordy = loaddata(:,5);
+            coordz = loaddata(:,6); 
+        end
+    end
 end
